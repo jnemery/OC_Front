@@ -5,6 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from "@angular/material/icon";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { AngularMaterialModule } from './_models/angularMaterial.module';
 import { LoginComponent } from './login.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -13,6 +14,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     LoginComponent
   ],
   imports: [
+    AngularMaterialModule,
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
