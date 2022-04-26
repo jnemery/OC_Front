@@ -2,7 +2,10 @@ import { FormGroup, FormControl, FormGroupDirective, NgForm, Validators } from '
 import { Component, EventEmitter, Output } from '@angular/core';
 import {ErrorStateMatcher} from '@angular/material/core';
 
+import {MatDialog} from '@angular/material/dialog';
+import { AlertComponent } from './alert/alert.component';
 import { User } from './_models/user';
+import { HttpClient } from '@angular/common/http';
 
 /** Error when invalid control is dirty, touched, or submitted. */
 export class MyErrorStateMatcher implements ErrorStateMatcher {
@@ -21,39 +24,50 @@ export class LoginComponent {
   title = 'one-cause-front';
   currentUser: User = new User;
   hide = true;
+  headers = {'content-type': 'application/json'}
+
+  constructor(private http: HttpClient, private dialog: MatDialog) {
+    
+  }
 
   signin: FormGroup = new FormGroup({
     username: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required, Validators.min(3)]),
-    token:    new FormControl('', [Validators.required, Validators.min(4)]),
+    token:    new FormControl('', [Validators.required, Validators.pattern('^[0-9]{4}$')]),
   });
 
   matcher = new MyErrorStateMatcher();
 
-  get usernameInput() {
-    return this.signin.get('username');
-  }
-  get passwordInput() {
-    return this.signin.get('password');
-  }
-
   setUsername() {
-    this.currentUser.username = this.usernameInput?.value;
+    this.currentUser.username = this.signin.get('username')?.value;
   }
 
   setPassword() {
-    this.currentUser.password = this.passwordInput?.value;
+    this.currentUser.password = this.signin.get('password')?.value;
   }
 
-  @Output() loginRequest = new EventEmitter<User>();
+  setToken() {
+    this.currentUser.token = this.signin.get('token')?.value;
+  }
 
-  login() {
-    this.loginRequest.emit(this.currentUser);
+  submitCredentials() {
     this.setUsername();
     this.setPassword();
+    this.setToken();
     console.log('username: ' + this.currentUser.username);
     console.log('password: ' + this.currentUser.password);
+    console.log('token: ' + this.currentUser.token);
     
+    this.http.post<any>("http://localhost:8080/login", this.currentUser, {'headers': this.headers}).subscribe(data => {
+      this.currentUser.valid = data["valid"];
+      if (this.currentUser.valid){
+        location.href = 'http://onecause.com'
+      } else{
+        this.dialog.open(AlertComponent, { data: {
+          alert: "INVALID LOGIN"
+        }});
+      }
+    })
   }
 
 }

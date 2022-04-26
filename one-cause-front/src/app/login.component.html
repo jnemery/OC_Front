@@ -12,24 +12,26 @@
   <form [formGroup]="signin">
     <mat-form-field appearance="fill">
       <mat-label>Username</mat-label>
-      <input type="email" matInput formControlName="username" [errorStateMatcher]="matcher"
-        placeholder="Username">
-      <mat-error *ngIf="signin.value.username.invalid">
+      <input type="email" matInput formControlName="username" [errorStateMatcher]="matcher">
+      <mat-error *ngIf="signin.get('username')?.hasError('email') && !signin.get('username')?.hasError('required')">
         Please enter a valid email address
       </mat-error>
-      <mat-error *ngIf="signin.value.username.isRequired">Username is required</mat-error>
+      <mat-error *ngIf="signin.get('username')?.hasError('required')">Username is required</mat-error>
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Password</mat-label>
-      <input matInput formControlName="password" [type]="hide ? 'password' : 'text'">
+      <input matInput formControlName="password" [errorStateMatcher]="matcher" [type]="hide ? 'password' : 'text'">
       <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
       <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
     </button>
+    <mat-error *ngIf="signin.get('password')?.hasError('required')">Password is required</mat-error>
     </mat-form-field>
     <mat-form-field appearance="fill">
       <input matInput placeholder="Time Of Day (HH:MM)" formControlName="token" required>
+      <mat-error *ngIf="signin.get('token')?.hasError('pattern')">Token must be 4 numbers</mat-error>
+      <mat-error *ngIf="signin.get('token')?.hasError('required')">Token is required</mat-error>
     </mat-form-field>
-    <button (click)="login()">Login</button>
+    <button (click)="submitCredentials()" [disabled]="!signin.valid">Login</button>
   </form>
 </div>
 </body>
